@@ -21,24 +21,7 @@ import TelaVendasEfetivadas from './Telas/TelaVendasEfetivadas/index';
 import TelaVendasEfetivadasDetalhes from './Telas/TelaVendasEfetivadasDetalhes/index';
 import Login from './Telas/Login/index';
 import CadastrarUsuario from './Telas/CadastrarUsuario/index';
-
-import {
-  createTable,
-  createTableProdutos,
-  createTableVendas,
-  createTableVendasProdutos,
-  createTableCategorias,
-  obtemTodosContatos,
-  adicionaContato,
-  alteraContato,
-  excluiContato,
-  excluiTodosContatos,
-  obtemTodosProdutos,
-  adicionaProduto,
-  alteraProduto,
-  excluiProduto,
-  excluiTodosProdutos
-} from './services/dbservice';
+import TelaDashboards from './Telas/TelaDashboards/index';
 
 const Routes = createAppContainer(
   createSwitchNavigator({
@@ -51,6 +34,7 @@ const Routes = createAppContainer(
     TelaEfetivarVenda,
     TelaVendasEfetivadas,
     TelaVendasEfetivadasDetalhes,
+    TelaDashboards,
   })
 );
 
@@ -60,4 +44,4 @@ export default function App() {
   );
 }
 
-window.apiUrl = "http://192.168.0.6:3001"; //http://localhost:3001
+window.apiUrl = "http://192.168.0.3:3001"; //http://localhost:3001

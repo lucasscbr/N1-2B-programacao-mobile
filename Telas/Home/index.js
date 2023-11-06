@@ -27,6 +27,14 @@ export default function Home({navigation}){
                 onPress={()=>navigation.navigate('TelaVendasEfetivadas')}>
                 <Text style={styles.textoBotao}>Tela Vendas Efetivadas</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={styles.botao}
+                onPress={()=>navigation.navigate('TelaDashboards')}>
+                <Text style={styles.textoBotao}>Dashboards</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.botao}
+                onPress={()=>navigation.navigate('Login')}>
+                <Text style={styles.textoBotao}>Voltar Login</Text>
+            </TouchableOpacity>
         </View>
 
     );

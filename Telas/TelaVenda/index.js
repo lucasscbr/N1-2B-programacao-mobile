@@ -6,16 +6,10 @@ import styles from './styles';
 import ProdutoVenda from '../../componentes/ProdutoVenda';
 import { AntDesign } from '@expo/vector-icons';
 import Axios from "axios";
+import { AsyncStorage } from 'react-native';
 
 import {
-    createTableProdutos,
-    obtemTodosProdutos,
-    adicionaProduto,
-    alteraProduto,
-    excluiProduto,
-    excluiTodosProdutos,
-    obtemProduto,
-    obtemProdutosFiltrado
+    createTableProdutos
   } from '../../services/dbservice';
 
 
@@ -74,9 +68,14 @@ export default function TelaVenda({ navigation }) {
     async function  carregaDados() {
         try {   
           let produtos = [];   
+          const token = await AsyncStorage.getItem('jwtToken');
           console.log('filtro => ' + filtro);
-          if(filtro == undefined || filtro.lenght <= 0) {
-            await Axios.get(window.apiUrl + "/obtemTodosProdutos")
+          if(filtro == "" || filtro == undefined || filtro.lenght <= 0) {
+            await Axios.get(window.apiUrl + "/obtemTodosProdutos", {
+              headers: {
+                Authorization: `${token}`,
+              }
+            }) 
             .then(response => {
             if(response.data == "Produtos não Encontrados")
               produtos = undefined;
@@ -88,7 +87,11 @@ export default function TelaVenda({ navigation }) {
             });
           }
           else {
-            await Axios.get(window.apiUrl + "/obtemProdutosFiltrados/" + filtro)
+            await Axios.get(window.apiUrl + "/obtemProdutosFiltrados/" + filtro, {
+              headers: {
+                Authorization: `${token}`,
+              }
+            }) 
             .then(response => {
             if(response.data == "Produtos não Encontrados")
               produtos = undefined;

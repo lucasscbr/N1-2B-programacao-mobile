@@ -7,17 +7,11 @@ import { useState, useEffect } from 'react';
 import Produto from '../../componentes/Produto';
 import { SelectList } from 'react-native-dropdown-select-list'
 import Axios from "axios";
+import { AsyncStorage } from 'react-native';
 
 import {
     createTableProdutos,
-    createTableCategorias,
-    obtemTodosProdutos,
-    adicionaProduto,
-    alteraProduto,
-    excluiProduto,
-    excluiTodosProdutos,
-    obtemProduto,
-    obtemTodasCategorias
+    createTableCategorias
   } from '../../services/dbservice';
 
 
@@ -50,8 +44,14 @@ export default function Produtos({ navigation }) {
 
    async function salvaDados() {
     let procuraProduto;
+    const token = await AsyncStorage.getItem('jwtToken');
+    console.log('token => ' + token);
     console.log(codigoProduto);
-    await Axios.get(window.apiUrl + "/obtemProduto/" + codigoProduto)
+    await Axios.get(window.apiUrl + "/obtemProduto/" + codigoProduto, {
+      headers: {
+        Authorization: `${token}`,
+      }
+    }) 
     .then(response => {
       procuraProduto = response.data;
       console.log('Testando MySQL GET produto');
@@ -80,13 +80,15 @@ export default function Produtos({ navigation }) {
 
     try {
         if (novoProduto) {
-            console.log('Usando AXIOS');
+          console.log('token existe? -> ' + token);
             Axios.post(window.apiUrl + "/createProduto", {
               codigoProduto: obj.codigoProduto,
               descricaoProduto: obj.descricaoProduto,
               precoProduto: obj.precoProduto,
               categoria: obj.categoria,
-            }).then((response) => {
+            },{headers: {
+              Authorization: `${token}`, 
+            }}).then((response) => {
               console.log('testando o erro');
               if (response.data.errors && response.data.errors.length > 0) {
                 // Exiba os erros na interface do usuário
@@ -112,7 +114,9 @@ export default function Produtos({ navigation }) {
               descricaoProduto: obj.descricaoProduto,
               precoProduto: obj.precoProduto,
               categoria: obj.categoria,
-            }).then((response) => {
+            },{ headers: {
+              Authorization: `${token}`, 
+            }}).then((response) => {
               console.log(response);
               if (response.data.errors && response.data.errors.length > 0) {
                 // Exiba os erros na interface do usuário
@@ -142,8 +146,11 @@ export default function Produtos({ navigation }) {
 
   async function  carregaDados() {
     try {      
-      let produtos;
-      await Axios.get(window.apiUrl + "/obtemTodosProdutos")
+      let produtos;  
+      const token = await AsyncStorage.getItem('jwtToken');
+      await Axios.get(window.apiUrl + "/obtemTodosProdutos",{headers: {
+        Authorization: `${token}`, 
+      }})
       .then(response => {
         console.log('todos os produtos');
         console.log(response.data);
@@ -158,7 +165,9 @@ export default function Produtos({ navigation }) {
       });
       setProdutos(produtos);      
       let categorias;
-      await Axios.get(window.apiUrl + "/obtemTodasCategorias")
+      await Axios.get(window.apiUrl + "/obtemTodasCategorias",{headers: {
+        Authorization: `${token}`, 
+      }})
       .then(response => {
         console.log('todos as categorias');
         console.log(response.data);
@@ -214,8 +223,9 @@ export default function Produtos({ navigation }) {
 
   async function efetivaExclusao() {
     try {
-      //await excluiTodosProdutos();
-      Axios.delete(window.apiUrl + "/excluiTodosProdutos", {
+      const token = await AsyncStorage.getItem('jwtToken');
+      Axios.delete(window.apiUrl + "/excluiTodosProdutos", {headers: {
+        Authorization: `${token}`, }
       }).then((response) => {
         console.log(response);
         Alert.alert('Produtos apagados!');
@@ -265,9 +275,11 @@ export default function Produtos({ navigation }) {
 
   async function efetivaRemoverProduto(identificador) {
     try {
-      //await excluiProduto(identificador);
+      const token = await AsyncStorage.getItem('jwtToken');
       console.log(identificador);
       Axios.delete(window.apiUrl + "/excluiProduto/" + identificador, {
+        headers: {
+          Authorization: `${token}`,}
       }).then((response) => {
         console.log(response);
         Alert.alert('Produto apagado com sucesso!!!');

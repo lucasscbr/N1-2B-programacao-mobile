@@ -5,6 +5,7 @@ import styles from './styles';
 import ItemProdutoVenda from '../../componentes/ItemProdutoVenda';
 import CurrencyInput from 'react-native-currency-input';
 import Axios from "axios";
+import { AsyncStorage } from 'react-native';
 
 import {
     createTableProdutos,
@@ -42,9 +43,12 @@ export default function TelaVendasEfetivadasDetalhes({ navigation }) {
   async function carregaDados() {
     try {    
       let venda = navigation.getParam('venda');
+      const token = await AsyncStorage.getItem('jwtToken');
       setVenda(navigation.getParam('venda'));
       let getProdutosVendas;
-      await Axios.get(window.apiUrl + "/obtemVendaProduto/" + venda.codigoVenda)
+      await Axios.get(window.apiUrl + "/obtemVendaProduto/" + venda.codigoVenda,{headers: {
+        Authorization: `${token}`, 
+      }})
       .then(response => {
       if(response.data == "Ocorreu um erro ao buscar os produtos da venda.")
         getProdutosVendas = undefined;

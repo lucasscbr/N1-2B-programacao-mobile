@@ -56,7 +56,7 @@ export default function CadastrarUsuario({ navigation }) {
   return (
     <View style={styles.container}>
       
-      <Text style={styles.tituloUser}>Cadastro de novo Usuário</Text>
+      <Text style={styles.tituloCadastro}>Cadastro de novo Usuário</Text>
 
       <View style={styles.inputDado}>
         <Text style={styles.textoCaixaTexto}>Nome</Text>
@@ -83,9 +83,14 @@ export default function CadastrarUsuario({ navigation }) {
         <TouchableOpacity style={styles.botao} onPress={()=>CriarUsuario()}>
           <Text style={styles.textoBotao}>Criar</Text>
         </TouchableOpacity>
-  
-        <TouchableOpacity style={styles.botao} onPress={() => limparCampos()}>
-          <Text style={styles.textoBotao}>Limpar Campos</Text>
+         
+        <TouchableOpacity style={[styles.botao, styles.botaoLimparCampos]} onPress={() => limparCampos()}>
+          <Text style={[styles.textoLimparCampos]}>Limpar Campos</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={[styles.botao, styles.botaoVoltar]}
+          onPress={()=>navigation.navigate('Login')}>
+          <Text style={styles.textoBotaoVoltar}>Voltar</Text>
         </TouchableOpacity>
 
       </View>

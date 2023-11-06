@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
       backgroundColor: '#5a189a',
       marginTop: 40,
     },
-    tituloUser: {
+    tituloCadastro: {
       fontSize: 25,
       color: '#e0aaff',
       backgroundColor: '#240046',
@@ -53,12 +53,13 @@ const styles = StyleSheet.create({
     textoBotao: {
       color: '#e0aaff',
     },
-    botaoApagarTudo: {
+    botaoLimparCampos: {
       backgroundColor: '#9d4edd',
       borderColor: '#9d4edd',
+      width: 136,
     },
-    textoBotaoApagarTudo: {
-      color: '#240046',
+    textoLimparCampos: {
+      color: '#160724',
     },
     botaoVoltar: {
       marginTop: 5,

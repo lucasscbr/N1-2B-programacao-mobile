@@ -53,20 +53,12 @@ const styles = StyleSheet.create({
     textoBotao: {
       color: '#e0aaff',
     },
-    botaoApagarTudo: {
-      backgroundColor: '#9d4edd',
-      borderColor: '#9d4edd',
-    },
-    textoBotaoApagarTudo: {
-      color: '#240046',
-    },
-    botaoVoltar: {
-      marginTop: 5,
-      backgroundColor: '#c77dff',
-      borderColor: '#c77dff',
-    },
-    textoBotaoVoltar: {
+    textoBotaoCriar: {
       color: '#10002b',
+    },
+    botaoNovaConta: {
+      width: 176,
+      backgroundColor: '#c77dff',
     },
   });
   

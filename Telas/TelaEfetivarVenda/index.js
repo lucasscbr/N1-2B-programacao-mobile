@@ -1,20 +1,30 @@
 import { Text, View, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef  } from 'react';
 import styles from './styles';
 import ProdutoResumo from '../../componentes/ProdutoResumo';
 import { StatusBar } from 'expo-status-bar';
 import CurrencyInput from 'react-native-currency-input';
 import Axios from "axios";
+import { AsyncStorage } from 'react-native';
+import * as Notifications from 'expo-notifications';
 
-import {
-  adicionaVenda,
-  adicionaProdutoNaVenda
-} from '../../services/dbservice';
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 
 export default function TelaEfetivarVenda({navigation }) {
   const [carrinho, setCarrinho] = useState([]);
   const [precoTotal, setPrecoTotal] = useState();
+
+  const [expoPushToken, setExpoPushToken] = useState('');
+  const [notification, setNotification] = useState(false);
+  const notificationListener = useRef();
+  const responseListener = useRef();
     
   useEffect(
     () => {
@@ -30,11 +40,28 @@ export default function TelaEfetivarVenda({navigation }) {
         totalPrice += parseFloat(navigation.getParam('carrinho')[n].precoProduto) * parseInt(navigation.getParam('carrinho')[n].quantidade);
       }
       setPrecoTotal(totalPrice);
+
+      /*registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+
+      notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+        setNotification(notification);
+      });
+  
+      responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+        console.log(response);
+      });
+  
+      return () => {
+        Notifications.removeNotificationSubscription(notificationListener.current);
+        Notifications.removeNotificationSubscription(responseListener.current);
+      };*/
     }, []);
 
   async function confirmaCompra() {
     // Cria uma nova venda
     console.log('confirmaCompra emtrou');
+    const token = await AsyncStorage.getItem('jwtToken');
+    console.log('confirmaCompra token => ' + token);
     let codigoVenda;
     await Axios.post(window.apiUrl + "/createVenda")
     .then(response => {
@@ -43,9 +70,9 @@ export default function TelaEfetivarVenda({navigation }) {
     })
     .catch(error => {
       console.error('Ocorreu um erro na solicitação:', error);
+      return;
     });
-    console.log('Vai iniciar o FOR');
-    console.log(carrinho.length);
+
     for (let i = 0; i < carrinho.length; i++) {
       const produtoVenda = {
         codigoProduto: carrinho[i].codigoProduto,
@@ -54,7 +81,9 @@ export default function TelaEfetivarVenda({navigation }) {
       };
 
       try {
-        const response = await Axios.post(window.apiUrl + "/adicionaProdutoNaVenda", produtoVenda);
+        const response = await Axios.post(window.apiUrl + "/adicionaProdutoNaVenda", produtoVenda, {headers: {
+          Authorization: `${token}`, 
+        }});
         console.log(response);
       } catch (error) {
         console.error('Ocorreu um erro na solicitação:', error);
@@ -63,10 +92,19 @@ export default function TelaEfetivarVenda({navigation }) {
         }
       }
     }
-
+    
+    Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Venda Efetivada!',
+        body: `Sua venda de código ${codigoVenda} foi efetivada`,
+      },
+      trigger: { seconds: 2 },
+    });
+    
     Alert.alert('Compra efetivada!');
     navigation.navigate('Home');
   }
+
     return (
       <View style={styles.container}>
 

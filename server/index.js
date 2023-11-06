@@ -2,6 +2,10 @@ const express = require("express");
 const app = express();
 const mysql = require("mysql");
 const cors = require("cors");
+const jwt = require('jsonwebtoken');
+
+//Chave
+const jwtSecret = '5lHJSUGFoqvaKW_VtAdA7l2Y9tGe2xcD_WBa8S1qlqULOzrddSy8aEVg6SaespAckg8N1G8BjJ_j4YeFseeskqbRB3jiqhnXRbfDMlv_PUd9P_dXZzwuX7uhafhVrqBmTzZ8UYkTP4D7O6MLH6ifefeJYrS0w-7WM5x_ba_s20';
 
 const db = mysql.createPool({
     host: "localhost",
@@ -13,8 +17,13 @@ const db = mysql.createPool({
 app.use(cors());
 app.use(express.json());
 
+app.listen(3001, () => {
+  console.log("rodando servidor 3001");
+});
+
 //Categoria
-app.post("/createCategoria", (req, res) =>{
+//app.post("/createCategoria", (req, res) =>{
+  app.post("/createCategoria", verifyToken, (req, res) => {
     const { codigoCategoria } = req.body;
     const { nome } = req.body;
 
@@ -43,7 +52,7 @@ app.post("/createCategoria", (req, res) =>{
     });
 });
 
-app.get("/obtemCategoria/:codigoCategoria", (req, res) =>{
+app.get("/obtemCategoria/:codigoCategoria", verifyToken, (req, res) =>{
     const codigoCategoria = req.params.codigoCategoria;
 
     let SQL = "SELECT codigoCategoria, nome FROM tbcategorias WHERE codigoCategoria = ?";
@@ -64,7 +73,7 @@ app.get("/obtemCategoria/:codigoCategoria", (req, res) =>{
     });
 });
 
-app.get("/obtemTodasCategorias", (req, res) =>{
+app.get("/obtemTodasCategorias", verifyToken, (req, res) =>{
 
     let SQL = "SELECT * FROM tbcategorias";
     
@@ -85,7 +94,7 @@ app.get("/obtemTodasCategorias", (req, res) =>{
     });
 });
 
-app.post("/alteraCategoria/:codigoCategoria", (req, res) => {
+app.post("/alteraCategoria/:codigoCategoria", verifyToken, (req, res) => {
     const codigoCategoria = req.params.codigoCategoria; 
     const { nome } = req.body;
 
@@ -119,7 +128,7 @@ app.post("/alteraCategoria/:codigoCategoria", (req, res) => {
     console.log('terminou');
 });
 
-app.delete("/excluiCategoria/:codigoCategoria", (req, res) => {
+app.delete("/excluiCategoria/:codigoCategoria", verifyToken,(req, res) => {
     const codigoCategoria = req.params.codigoCategoria;
 
     let SQL = "DELETE FROM tbcategorias WHERE codigoCategoria = ?";
@@ -139,7 +148,7 @@ app.delete("/excluiCategoria/:codigoCategoria", (req, res) => {
     });
 });
 
-app.delete("/excluiTodasCategorias", (req, res) => {
+app.delete("/excluiTodasCategorias", verifyToken, (req, res) => {
 
     let SQL = "DELETE FROM tbcategorias";
   
@@ -155,7 +164,7 @@ app.delete("/excluiTodasCategorias", (req, res) => {
 });
 
 //Produtos
-app.post("/createProduto", (req, res) =>{
+app.post("/createProduto", verifyToken, (req, res) =>{
     const { codigoProduto } = req.body;
     const { descricaoProduto } = req.body;
     const { precoProduto } = req.body;
@@ -188,7 +197,7 @@ app.post("/createProduto", (req, res) =>{
     });
 });
 
-app.get("/obtemProduto/:codigoProduto", (req, res) =>{
+app.get("/obtemProduto/:codigoProduto", verifyToken, (req, res) =>{
     const codigoProduto = req.params.codigoProduto;
 
     let SQL = "SELECT codigoProduto, descricaoProduto, precoProduto, categoria FROM tbprodutos WHERE codigoProduto = ?";
@@ -209,7 +218,7 @@ app.get("/obtemProduto/:codigoProduto", (req, res) =>{
     });
 });
 
-app.get("/obtemTodosProdutos", (req, res) =>{
+app.get("/obtemTodosProdutos", verifyToken, (req, res) =>{
 
     let SQL = "SELECT * FROM tbprodutos";
     
@@ -230,7 +239,7 @@ app.get("/obtemTodosProdutos", (req, res) =>{
     });
 });
 
-app.get("/obtemProdutosFiltrados/:filtro", (req, res) => {
+app.get("/obtemProdutosFiltrados/:filtro", verifyToken, (req, res) => {
     const filtro = req.params.filtro;
   
     let SQL = "SELECT * FROM tbprodutos WHERE categoria LIKE ?";
@@ -251,7 +260,7 @@ app.get("/obtemProdutosFiltrados/:filtro", (req, res) => {
     });
 });
 
-app.post("/alteraProduto/:codigoProduto", (req, res) => {
+app.post("/alteraProduto/:codigoProduto", verifyToken, (req, res) => {
     const codigoProduto = req.params.codigoProduto; // Obtém o código do produto da URL
     const { descricaoProduto, precoProduto, categoria } = req.body;
 
@@ -288,7 +297,7 @@ app.post("/alteraProduto/:codigoProduto", (req, res) => {
     console.log('terminou');
 });
 
-app.delete("/excluiProduto/:codigoProduto", (req, res) => {
+app.delete("/excluiProduto/:codigoProduto", verifyToken, (req, res) => {
     console.log('chamou o exclui produto');
     const codigoProduto = req.params.codigoProduto;
     console.log(codigoProduto);
@@ -310,7 +319,7 @@ app.delete("/excluiProduto/:codigoProduto", (req, res) => {
     });
 });
 
-app.delete("/excluiTodosProdutos", (req, res) => {
+app.delete("/excluiTodosProdutos", verifyToken, (req, res) => {
 
     let SQL = "DELETE FROM tbprodutos";
   
@@ -326,7 +335,8 @@ app.delete("/excluiTodosProdutos", (req, res) => {
 });
   
 //Vendas
-app.get("/obtemTodasVendas", (req, res) =>{
+//app.get("/obtemTodasVendas", (req, res) =>{
+app.get("/obtemTodasVendas", verifyToken, (req, res) =>{
 
     let SQL = "SELECT * FROM tbvendas";
     
@@ -362,7 +372,7 @@ app.post("/createVenda", (req, res) => {
 });
   
 //Vendas Efetivadas
-app.post("/adicionaProdutoNaVenda", (req, res) => {
+app.post("/adicionaProdutoNaVenda", verifyToken, (req, res) => {
     const { codigoProduto, quantidade, codigoVenda } = req.body;
   
     // Execute a inserção na tabela tbvendasprodutos
@@ -383,7 +393,7 @@ app.post("/adicionaProdutoNaVenda", (req, res) => {
     });
 });
 
-app.get("/obtemVendaProduto/:codigoVenda", (req, res) => {
+app.get("/obtemVendaProduto/:codigoVenda", verifyToken, (req, res) => {
     const codigoVenda = req.params.codigoVenda;
     console.log(codigoVenda);
     // Execute a consulta SQL para obter os produtos da venda
@@ -437,8 +447,12 @@ app.post('/login', (req, res) => {
       return res.status(200).json({ errors: ['Credenciais inválidas'] });
     }
 
-    // Autenticação bem-sucedida
-    res.status(200).json({ message: 'Login bem-sucedido' });
+    // Autenticação bem-sucedida, gera token jwt
+    const user = results[0];
+    const token = jwt.sign({ usuario: user.usuario }, jwtSecret);
+    console.log("Token feito: " + token);
+
+    res.status(200).json({ token });
   });
 });
 
@@ -479,10 +493,42 @@ app.post('/criarUsuario', (req, res) => {
   });
 });
 
+//Dashboard
+app.get("/salesSummary", (req, res) => {
+  // Consulta SQL para obter o total de vendas feitas e os dados de data da venda
+  console.log('salesSummary');
+  const query = `
+    SELECT DATE(dataVenda) AS data, SUM(vp.quantidade * p.precoProduto) AS total
+    FROM tbvendasprodutos vp
+    JOIN tbvendas v ON vp.codigoVenda = v.codigoVenda
+    JOIN tbprodutos p ON vp.codigoProduto = p.codigoProduto
+    GROUP BY DATE(dataVenda)
+    ORDER BY DATE(dataVenda)`;
 
-app.listen(3001, () => {
-    console.log("rodando servidor");
+  db.query(query, (err, result) => {
+    if (err) {
+      console.log(err);
+      console.log('Deu erro em');
+      res.status(500).json({ error: "Ocorreu um erro ao buscar os dados de vendas." });
+    } else {
+      const salesData = result.map((row) => ({
+        date: new Date(row.data).toLocaleDateString(),
+        total: row.total,
+      }));
+
+      // Calcular o total de vendas
+      const totalSales = salesData.reduce((total, sale) => total + sale.total, 0);
+
+      console.log('totalSales -> ' + totalSales);
+      console.log(JSON.stringify(salesData, null, 2));
+      console.log('salesData.date -> ' + salesData.date);
+      console.log('salesData.total -> ' + salesData.total);
+
+      res.status(200).json({ totalSales, salesData });
+    }
+  });
 });
+
 
 function validateProduto(produto) {
   const errors = [];
@@ -536,4 +582,26 @@ function validateUsuario(usuario) {
   }
   return errors;
 }
+
+function verifyToken(req, res, next) {
+  console.log("verifyToken");
+  const token = req.headers['authorization'];
+
+  if (!token) {
+    console.log('Token de autenticação não fornecido');
+    return res.status(401).json({ error: 'Token de autenticação não fornecido' });
+  }
+
+  jwt.verify(token, jwtSecret, (err, decoded) => {
+    if (err) {
+      console.log('Token de autenticação inválido');
+      return res.status(401).json({ error: 'Token de autenticação inválido' });
+    }
+
+    req.user = decoded;
+    console.log("token válido!");
+    next();
+  });
+}
+
 

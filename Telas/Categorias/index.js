@@ -4,15 +4,10 @@ import { StatusBar } from 'expo-status-bar';
 import { useState, useEffect } from 'react';
 import Categoria from '../../componentes/Categoria';
 import Axios from "axios";
+import { AsyncStorage } from 'react-native';
 
 import {
-    createTableCategorias,
-    obtemTodasCategorias,
-    adicionaCategoria,
-    alteraCategoria,
-    excluiCategoria,
-    excluiTodasCategorias,
-    obtemCategoria
+    createTableCategorias
   } from '../../services/dbservice';
 
 
@@ -41,9 +36,13 @@ export default function Produtos({ navigation }) {
   }, []);
 
   async function salvaDados() {
-    //let procuraCategoria = await obtemCategoria(codigoCategoria);
+    const token = await AsyncStorage.getItem('jwtToken');
     let procuraCategoria;
-    await Axios.get(window.apiUrl + "/obtemCategoria/" + codigoCategoria)
+    await Axios.get(window.apiUrl + "/obtemCategoria/" + codigoCategoria, {
+      headers: {
+        Authorization: `${token}`,
+      }
+    })  
     .then(response => {
       procuraCategoria = response.data;
     })
@@ -66,6 +65,10 @@ export default function Produtos({ navigation }) {
           Axios.post(window.apiUrl + "/createCategoria", {
             codigoCategoria: obj.codigoCategoria,
             nome: obj.nome,
+          }, {
+            headers: {
+              Authorization: `${token}`, 
+            }
           }).then((response) => {
             if (response.data.errors && response.data.errors.length > 0) {
               // Exiba os erros na interface do usuário
@@ -89,7 +92,10 @@ export default function Produtos({ navigation }) {
             console.log('Chamando altera Categoria');
             Axios.post(window.apiUrl + "/alteraCategoria/" + obj.codigoCategoria, {
               nome: obj.nome,
-            }).then((response) => {
+            },{
+              headers: {
+                Authorization: `${token}`, 
+              }}).then((response) => {
               if (response.data.errors && response.data.errors.length > 0) {
                 // Exiba os erros na interface do usuário
                 const errorList = response.data.errors.join("\n");
@@ -120,9 +126,13 @@ export default function Produtos({ navigation }) {
   }
 
   async function carregaDados() {
+    const token = await AsyncStorage.getItem('jwtToken');
     try {      
       let categorias;
-      await Axios.get(window.apiUrl + "/obtemTodasCategorias")
+      await Axios.get(window.apiUrl + "/obtemTodasCategorias",{
+        headers: {
+          Authorization: `${token}`,}
+      })
       .then(response => {
         console.log('todos as categorias');
         console.log(response.data);
@@ -160,8 +170,10 @@ export default function Produtos({ navigation }) {
   }
 
   async function efetivaExclusao() {
+    const token = await AsyncStorage.getItem('jwtToken');
     try {
-      Axios.delete(window.apiUrl + "/excluiTodasCategorias", {
+      Axios.delete(window.apiUrl + "/excluiTodasCategorias", {  headers: {
+        Authorization: `${token}`, }
       }).then((response) => {
         console.log(response);
         Alert.alert('Categorias apagadas!');
@@ -210,10 +222,13 @@ export default function Produtos({ navigation }) {
   }
 
   async function efetivaRemoverCategoria(identificador) {
+    const token = await AsyncStorage.getItem('jwtToken');
     try {
-      Axios.delete(window.apiUrl + "/excluiCategoria/" + identificador, {
+      Axios.delete(window.apiUrl + "/excluiCategoria/" + identificador, { headers: {
+        Authorization: `${token}`, }
       }).then((response) => {
         console.log(response);
+        carregaDados();
         Alert.alert('Categoria apagada com sucesso!!!');
       }).catch(error => {
         console.error('Ocorreu um erro na solicitação:', error);

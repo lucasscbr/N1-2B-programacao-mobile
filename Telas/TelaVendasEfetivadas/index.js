@@ -4,13 +4,13 @@ import { StatusBar } from 'expo-status-bar';
 import styles from './styles';
 import ItemVenda from '../../componentes/ItemVenda';
 import Axios from "axios";
+import { AsyncStorage } from 'react-native';
 
 import {
     createTableProdutos,
     createTableVendas,
     createTableVendasProdutos,
-    createTableCategorias,
-    obtemTodasVendas
+    createTableCategorias
   } from '../../services/dbservice';
 
 
@@ -42,7 +42,9 @@ export default function TelaVendasEfetivadas({ navigation }) {
   async function  carregaDados() {
     try {      
       let getVendas;
-      await Axios.get(window.apiUrl + "/obtemTodasVendas")
+      const token = await AsyncStorage.getItem('jwtToken');
+      await Axios.get(window.apiUrl + "/obtemTodasVendas", { headers: {
+        Authorization: `${token}`, }})
       .then(response => {
       if(response.data == "Vendas não Encontradas")
         getVendas = undefined;
